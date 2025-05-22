@@ -10,14 +10,14 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install
 
 # Copy source files and optional env files
 COPY .env* ./
 COPY . .
 
 # Build the Next.js application
-RUN npm run build
+RUN yarn build
 
 # Run stage: lightweight image for running the app
 FROM node:20-bullseye-slim AS runner
