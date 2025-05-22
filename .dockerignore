@@ -1,9 +1,0 @@
-node_modules
-.git
-.next/server/pages
-.next/static
-.next/cache
-out
-Dockerfile
-.dockerignore
-README.md
