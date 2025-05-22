@@ -1,34 +1,31 @@
-# Build stage: focuses on creating the application.
-FROM node:20 AS builder
+### Build stage : focuses on creating the application.
+FROM node:22.12.0 AS builder
 
-ENV NODE_ENV=production
-
-# Set /app as working directory
+# Sets /app as the working directory within the container.
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+#Copies package.json and package-lock.json  from the host to the /app directory in the container.
 COPY package*.json ./
 
-# Install dependencies
-RUN yarn install
+# Uses yarn to install all dependencies listed in package.json.
+RUN npm install
 
-# Copy source files and optional env files
-COPY .env* ./
+# Copies the rest of the application files (e.g., source code) into the container.
 COPY . .
 
-# Build the Next.js application
-RUN yarn build
+# Build the application ( Compiles the Next.js application.Generates a .next folder containing optimized, production-ready files. )
+RUN npm run build 
 
-# Run stage: lightweight image for running the app
-FROM node:20-bullseye-slim AS runner
+### Run stage :This stage creates a lightweight image containing only the files needed to run the application.
+FROM node:22.12.0-bullseye-slim AS runner
 
-# Enable standalone mode support
+# Copies specific directories from the builder stage, These files are all the runner needs to serve the Next.js application.
 COPY --from=builder /app/.next/standalone ./standalone
 COPY --from=builder /app/public ./standalone/public
 COPY --from=builder /app/.next/static ./standalone/.next/static
 
-# Expose the correct port
+# Expose the Next.js default port
 EXPOSE 3000
 
-# Start the server
+# Start the Next.js app
 CMD ["node", "./standalone/server.js"]
