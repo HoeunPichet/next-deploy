@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies — use --verbose if debugging
-RUN npm install --verbose
+RUN npm cache clean --force && npm install --verbose
 
 # Copy the rest of the source files
 COPY . .
