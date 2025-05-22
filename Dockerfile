@@ -1,5 +1,7 @@
 # Build stage: focuses on creating the application.
-FROM node:22.12.0 AS builder
+FROM node:20 AS builder
+
+ENV NODE_ENV=production
 
 # Set /app as working directory
 WORKDIR /app
@@ -7,24 +9,25 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies — use --verbose if debugging
-RUN npm cache clean --force && npm install --verbose
+# Install dependencies
+RUN npm install
 
-# Copy the rest of the source files
+# Copy source files and optional env files
+COPY .env* ./
 COPY . .
 
 # Build the Next.js application
 RUN npm run build
 
 # Run stage: lightweight image for running the app
-FROM node:22.12.0-bullseye-slim AS runner
+FROM node:20-bullseye-slim AS runner
 
 # Enable standalone mode support
 COPY --from=builder /app/.next/standalone ./standalone
 COPY --from=builder /app/public ./standalone/public
 COPY --from=builder /app/.next/static ./standalone/.next/static
 
-# Expose port 3000
+# Expose the correct port
 EXPOSE 3000
 
 # Start the server
